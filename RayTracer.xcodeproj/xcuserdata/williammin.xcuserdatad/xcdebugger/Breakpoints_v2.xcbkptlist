@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/tracer.hpp"
-            timestampString = "573961847.563509"
+            timestampString = "574032032.088599"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "43"
-            endingLineNumber = "43"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
             landmarkName = "closestIntersection(std::vector&lt;Shape*&gt;&amp; scene, sf::Vector3&lt;double&gt; RO, sf::Vector3&lt;double&gt; RD, Shape * toExclude = nullptr)"
             landmarkType = "9">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/shape.hpp"
-            timestampString = "573961847.5636179"
+            timestampString = "574032032.089065"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "69"
-            endingLineNumber = "69"
+            startingLineNumber = "59"
+            endingLineNumber = "59"
             landmarkName = "intersect(sf::Vector3&lt;double&gt; RO, sf::Vector3&lt;double&gt; RD)"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/shape.hpp"
-            timestampString = "573961847.563694"
+            timestampString = "574032032.089123"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
+            startingLineNumber = "45"
+            endingLineNumber = "45"
             landmarkName = "intersect(sf::Vector3&lt;double&gt; RO, sf::Vector3&lt;double&gt; RD)"
             landmarkType = "7">
             <Locations>
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/tracer.hpp"
-            timestampString = "573961847.563764"
+            timestampString = "574032032.08917"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "115"
-            endingLineNumber = "115"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
             landmarkName = "Raytrace(std::vector&lt;Shape*&gt;&amp; scene, sf::Vector3&lt;double&gt; Origin, sf::Vector3&lt;double&gt; Direction, int depth = 0, Shape * lastShape = nullptr)"
             landmarkType = "9">
          </BreakpointContent>

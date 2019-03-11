@@ -25,11 +25,9 @@ sf::Color operator*(sf::Color A, double B){
 
 sf::Color clamp(sf::Color A){
     sf::Color B(0,0,0,0);
-    
     B.r = A.r > 255 ? 255 : A.r;
     B.g = A.g > 255 ? 255 : A.g;
     B.b = A.b > 255 ? 255 : A.b;
     B.a = A.a > 255 ? 255 : A.a;
-    
     return B;
 }

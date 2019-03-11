@@ -6,29 +6,22 @@
 #pragma once
 
 
-class Material{//a simple container dictionary for storing surface information
+class Material{//a simple container for storing surface information
 public:
     double smoothness;
     double specular_intensity;
     double diffuse_intensity;
     sf::Color diffuse_color;
     double reflectivity;
-    
     Material(double smoothness_passed, double specular_intensity_passed,double diffuse_intensity_passed, sf::Color diffuse_color_passed, double reflectivity_passed): smoothness(smoothness_passed), specular_intensity(specular_intensity_passed), diffuse_intensity(diffuse_intensity_passed),diffuse_color(diffuse_color_passed),reflectivity(reflectivity_passed){};
 };
 
 class Shape{
 public:
     std::string type = "";
-    Shape(std::string type_passed,Material m){
-        type = type_passed;
-        smoothness = m.smoothness;
-        specular_intensity=m.specular_intensity;
-        diffuse_intensity=m.diffuse_intensity;
-        reflectivity = m.reflectivity;
-        diffuse_color = m.diffuse_color;
-        
-    }
+    Material material;
+    Shape(std::string type_passed,Material m):
+    material(m){}
     virtual double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         throw std::logic_error("The abstract shape class has no defined intersect function");
         return inf;//these functions should never be called
@@ -37,11 +30,6 @@ public:
         throw std::logic_error("The abstract shape class has no defined getNormal function");
         return sf::Vector3<double>(inf,inf,inf);//these functions should never be called
     };
-    double smoothness; //a number between 0 and 1
-    double specular_intensity;
-    double diffuse_intensity;
-    double reflectivity;
-    sf::Color diffuse_color;
 };
 
 class Plane: public Shape{
@@ -68,7 +56,6 @@ public:
         if(total < 0){
             return inf; //Negative d means no intersection
         }
-        
         
         return total;
     }
@@ -140,12 +127,8 @@ public:
     :Plane(PO_passed, PN_passed, m),yvecMax(ymax),xvecMax(xmax),yvecMin(ymin),xvecMin(xmin),yposAxis(normalize(yposAxis))
     {
         type = "Rect";
-        if(abs(PN*yposAxis) > 0.00001){
-            throw std::logic_error("A rect object was improperly initialized");
-        }
-        else{
-            xposAxis = normalize(cross(PN, yposAxis));
-        }
+        if(abs(PN*yposAxis) > 0.00001){throw std::logic_error("A rect object was improperly initialized");}
+        else{xposAxis = normalize(cross(PN, yposAxis));}
     }
     
     double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){

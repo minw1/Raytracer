@@ -22,7 +22,7 @@ sf::Texture* image(float time){
     
     Sphere blueSphere(sf::Vector3<double>(9,1,1.2), .4, blue);
     
-    Rect greyPlane(sf::Vector3<double>(15,0,-1), normalize(sf::Vector3<double>(0,0,1)),sf::Vector3<double>(1,0,0),5,5,-10,-5,steel);
+    Plane greyPlane(sf::Vector3<double>(15,0,-1), sf::Vector3<double>(0,0,1), steel);
     
     Cube redCube(sf::Vector3<double>(30,0,1),
                  2.0 * sf::Vector3<double>(cos(timescaled),0,sin(timescaled)),
