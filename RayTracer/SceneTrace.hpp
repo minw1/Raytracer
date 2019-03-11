@@ -15,7 +15,7 @@ sf::Texture* image(float time){
     Material steel2(.05, 1, .5, sf::Color(100,100,255), .2);
     Material blue(0.05, 1, .5, sf::Color(0,0,255), .1);
     Material mirror(0.05, 1, .5, sf::Color(100,0,0), 1);
-    Material red(0.05, 1, .5, sf::Color(200,0,0), .1);
+    Material red(0.06, 1, .5, sf::Color(200,0,0), .1);
     
     double timescaled = time*(2*pi)/100;
     
