@@ -32,11 +32,5 @@ int main(int, char const**)
         delete ptr;
         framecount++;
     }
-    
-    
-    
-    //auto ptr = image(10);
-    //ptr->copyToImage().saveToFile("/Users/williammin/Desktop/render.png");
-    
     return EXIT_SUCCESS;
 }

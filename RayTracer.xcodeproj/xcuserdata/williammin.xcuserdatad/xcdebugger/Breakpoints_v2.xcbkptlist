@@ -47,8 +47,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "55"
             endingLineNumber = "55"
-            landmarkName = "Plane"
-            landmarkType = "3">
+            landmarkName = "intersect(sf::Vector3&lt;double&gt; RO, sf::Vector3&lt;double&gt; RD)"
+            landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "No"

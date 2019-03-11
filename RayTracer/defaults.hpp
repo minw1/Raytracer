@@ -1,7 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-
 sf::Color lightColor(255,255,255,255);
 const double EulerConstant = std::exp(1.0);
 sf::Vector3<double> lightPosition(10,0,5);
@@ -22,11 +21,9 @@ sf::Uint8* pixels = new sf::Uint8[width*height*4];
 const double inf = std::numeric_limits<double>::infinity();
 
 
-
 double operator*(sf::Vector3<double> A, sf::Vector3<double> B){
     return (A.x*B.x) + (A.y*B.y) + (A.z*B.z);
 }
-
 
 
 double magnitude(sf::Vector3<double> A){
@@ -65,6 +62,6 @@ std::string pad(int a, int digits){
 
 
 bool pointInPlane(sf::Vector3<double> point, sf::Vector3<double> Plane, sf::Vector3<double> normal){
-    return (fabs((point-Plane)*normal) < 0.00000001);
-    
+    return (fabs((point-Plane)*normal) < 0.00000001);//oh my god i spent so long trying to figure out why this was broken
+    //originally, i had forgotten to take the absolute value, so plane intersections from one direction wouldn't register.
 }

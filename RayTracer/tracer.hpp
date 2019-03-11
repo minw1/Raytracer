@@ -9,11 +9,9 @@ std::tuple<double,Shape*> closestIntersection(std::vector<Shape*>& scene, sf::Ve
         
         Shape * thisPtr = scene[a];
         
-        
         if(toExclude == thisPtr){//some problems can occur without this statement, we don't want the tops of spheres blocking the bottom
             continue;
         }
-        
         
         double distance = inf;
         
@@ -58,17 +56,11 @@ sf::Color Raytrace(std::vector<Shape*>& scene, sf::Vector3<double> Origin, sf::V
     
     if(depth == max_depth){return sf::Color(128,128,128,255);}
     
-    
     std::tuple<double,Shape*> info = closestIntersection(scene, Origin, Direction, lastShape);
     
     double distance = std::get<0>(info);
     
-    if(distance == inf){
-
-        return backgroundColor;
-    
-    }
-    
+    if(distance == inf){return backgroundColor;}
     
     Shape * objectP = std::get<1>(info);
     
@@ -137,22 +129,6 @@ sf::Color Raytrace(std::vector<Shape*>& scene, sf::Vector3<double> Origin, sf::V
     
     sf::Vector3<double> bounceAngle = normalize((normal*(normal * viewVec))*-2.0 + viewVec);
     sf::Color nextStep = Raytrace(scene, POI+(normal*0.001), bounceAngle,depth+1, objectP);
-    if(object.type == "Cube"){
-        /*
-         //std::cout<<"spec: "<<spec<<std::endl;
-        std::cout<<vector_str(bounceAngle)<<std::endl;
-        std::cout<<vector_str(POI+(normal*0.001))<<std::endl;
-        std::cout<<color_str(nextStep)<<std::endl;
-        
-        std::cout<<std::get<0>(
-                               closestIntersection(scene,
-                                                   sf::Vector3<double>(28.698761,-0.999420,1.112961),
-                                                   sf::Vector3<double>(-0.707107,0.000000,0.707107)
-                                                   )
-                               )<<std::endl;
-         */
-    }
-    
     
     rayColor = rayColor * double(1-object.reflectivity) + nextStep*object.reflectivity;
     

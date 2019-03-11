@@ -2,9 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "tracer.hpp"
 #include "ResourcePath.hpp"
-double goodArc(float time){
-    return 6- pow((time-25.0),2)/100;
-}
 
 sf::Texture* image(float time){
     sf::Texture* texture = new sf::Texture();
@@ -19,31 +16,13 @@ sf::Texture* image(float time){
     
     double timescaled = time*(2*pi)/100;
     
-    
-    
     Sphere redSphere(sf::Vector3<double>(10,cos(timescaled),sin(timescaled)), .7, mirror);
     
-    //Sphere redSphere(sf::Vector3<double>(-1,0,2), 0.6, 0.05, 1, .5, sf::Color::Red, .3);
-    
     Sphere greenSphere(sf::Vector3<double>(sin(timescaled)*20 + 25,2.0*sin(timescaled),2.0*cos(timescaled)+ 0.5), .8, red);
-
-
     
     Sphere blueSphere(sf::Vector3<double>(9,1,1.2), .4, blue);
     
     Rect greyPlane(sf::Vector3<double>(15,0,-1), normalize(sf::Vector3<double>(0,0,1)),sf::Vector3<double>(1,0,0),5,5,-10,-5,steel);
-    
-    /*
-    Cube redCube(sf::Vector3<double>(30,0,1),
-                 2.0 * sf::Vector3<double>(0,sin(timescaled),cos(timescaled)),
-                                           
-                 sf::Vector3<double>(.5,sqrt(3)*cos(timescaled)/2,-sqrt(3)*sin(timescaled)/2),
-                                           
-                 sf::Vector3<double>(sqrt(3)/2,-cos(timescaled)/2,sin(timescaled)/2),
-                 steel);
-     */
-     
-     
     
     Cube redCube(sf::Vector3<double>(30,0,1),
                  2.0 * sf::Vector3<double>(cos(timescaled),0,sin(timescaled)),
@@ -57,20 +36,12 @@ sf::Texture* image(float time){
     
     Plane redPlane(sf::Vector3<double>(-20,0,0), sf::Vector3<double>(1,0,0),red);
     
-   // Rect mRect(sf::Vector3<double>(20,0,0), sf::Vector3<double>(-1,0,0), sf::Vector3<double>(0,0,1), 1, 1, -1, -1, steel);
-    
-    
-    
-    //std::cout<<greyPlane.intersect(sf::Vector3<double>(0,0,0), normalize(sf::Vector3<double>(1,0,-0.5)));
     
     scene.push_back(&redSphere);
     scene.push_back(&greenSphere);
     scene.push_back(&blueSphere);
     scene.push_back(&redCube);
-    //scene.push_back(&redPlane);
-
     scene.push_back(&greyPlane);
-    //scene.push_back(&mRect);
     
     for(int aPIX = 0; aPIX < width; aPIX++){
         for(int bPIX = 0; bPIX < height;bPIX++){
@@ -78,13 +49,13 @@ sf::Texture* image(float time){
             
             double aPOS = viewport[0] + ( (viewport[2]-viewport[0]) * (double(aPIX)/double(width-1)) );
             double bPOS = viewport[1] + ( (viewport[3]-viewport[1]) * (double(bPIX)/double(height-1)) );
+            
+            //this is because the positive y direction in the 3d coordinate plane is the negative y direction in the sfml rendering window
             bPOS = -bPOS;
+            
             double cPOS = 1;
             
-            
             sf::Vector3<double> focusPoint(cPOS,aPOS,bPOS);
-            
-            
             
             //if we want a linspace from min to max, if we have x samples from 0...x-1
             //then for sample g we should return min + (max-min)(g)/(x-1)
@@ -92,13 +63,6 @@ sf::Texture* image(float time){
             
             sf::Color thisColor = Raytrace(scene, cameraPosition, normalize(focusPoint-cameraPosition));
             thisColor = clamp(thisColor);
-            /*
-             
-             std::cout<<int(thisColor.r)<<", ";
-             std::cout<<int(thisColor.g)<<", ";
-             std::cout<<int(thisColor.b)<<", ";
-             std::cout<<int(thisColor.a)<<", "<<std::endl;
-             */
             
             pixels[(aPIX+bPIX*width)*4] = thisColor.r;//r
             pixels[(aPIX+bPIX*width)*4 + 1] = thisColor.g;//g
@@ -115,10 +79,4 @@ sf::Texture* image(float time){
 
     
     return texture;
-    
-    
 }
-
-
-
-

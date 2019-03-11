@@ -10,7 +10,6 @@ sf::Color operator*(sf::Color A, double B){
     sf::Uint8 bn = double(int(A.b)) * B;
     sf::Uint8 gn = double(int(A.g)) * B;
     
-    
     if(rn > 255){rn=255;}
     if(rn < 0){rn=0;}
     
@@ -22,9 +21,6 @@ sf::Color operator*(sf::Color A, double B){
     
     return sf::Color(rn,gn,bn,a);
 }
-
-
-
 
 
 sf::Color clamp(sf::Color A){
