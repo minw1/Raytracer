@@ -1,16 +1,18 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <vector>
 
 sf::Color lightColor(255,255,255,255);
 const double EulerConstant = std::exp(1.0);
 sf::Vector3<double> lightPosition(5,0,5);
 sf::Vector3<double> cameraPosition(-5,0,0);
+
 const sf::Color ambientColor(120,120,120,255);
 const sf::Color backgroundColor(136,206,235,255);
 const double pi = 3.141592;
 const int max_depth = 4;
-int width = 200;
-int height = 150;
+int width = 2000;
+int height = 1500;
 double viewport[4] = {-1,-0.75,1,0.75};
 sf::Uint8* pixels = new sf::Uint8[width*height*4];
 const double inf = std::numeric_limits<double>::infinity();
@@ -53,4 +55,11 @@ std::string pad(int a, int digits){
 bool pointInPlane(sf::Vector3<double> point, sf::Vector3<double> Plane, sf::Vector3<double> normal){
     return (fabs((point-Plane)*normal) < 0.00000001);//oh my god i spent so long trying to figure out why this was broken
     //originally, i had forgotten to take the absolute value, so plane intersections from one direction wouldn't register.
+}
+
+
+
+std::vector<sf::Vector3<double>> getMatrixFromRotation(double xTilt, double yTilt, double zTilt){
+    std::vector<sf::Vector3<double>> toReturn;
+    return(toReturn);//this will be implemented later
 }

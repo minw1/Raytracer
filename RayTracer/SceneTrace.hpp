@@ -11,12 +11,12 @@ sf::Texture* image(float time){
     Material steel(0.05, 1, .5, sf::Color(100,100,255), .5);
     Material steel2(.05, 1, .5, sf::Color(100,100,255), .2);
     Material blue(0.05, 1, .5, sf::Color(0,0,255), .1);
-    Material mirror(0.05, 1, .5, sf::Color(100,0,0), 1);
+    Material mirror(0.1, 1, .5, sf::Color(100,100,100),.8);
     Material red(0.06, 1, .5, sf::Color(200,0,0), .1);
     
     double timescaled = time*(2*pi)/100;
     
-    Sphere redSphere(sf::Vector3<double>(10,cos(timescaled),sin(timescaled)), .7, mirror);
+    Sphere redSphere(sf::Vector3<double>(10,cos(timescaled),sin(timescaled*2)), .7, mirror);
     
     Sphere greenSphere(sf::Vector3<double>(sin(timescaled)*20 + 25,2.0*sin(timescaled),2.0*cos(timescaled)+ 0.5), .8, red);
     
@@ -34,7 +34,6 @@ sf::Texture* image(float time){
                  steel2);
     
     
-    Plane redPlane(sf::Vector3<double>(-20,0,0), sf::Vector3<double>(1,0,0),red);
     
     
     scene.push_back(&redSphere);

@@ -16,20 +16,14 @@ public:
     Material(double smoothness_passed, double specular_intensity_passed,double diffuse_intensity_passed, sf::Color diffuse_color_passed, double reflectivity_passed): smoothness(smoothness_passed), specular_intensity(specular_intensity_passed), diffuse_intensity(diffuse_intensity_passed),diffuse_color(diffuse_color_passed),reflectivity(reflectivity_passed){};
 };
 
-class Shape{
+class Shape{//abstract class for all the functions a tracable shape needs
 public:
     std::string type = "";
     Material material;
     Shape(std::string type_passed,Material m):
     material(m){}
-    virtual double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        throw std::logic_error("The abstract shape class has no defined intersect function");
-        return inf;//these functions should never be called
-    };
-    virtual sf::Vector3<double> getNormal(sf::Vector3<double> POI){
-        throw std::logic_error("The abstract shape class has no defined getNormal function");
-        return sf::Vector3<double>(inf,inf,inf);//these functions should never be called
-    };
+    virtual double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD)=0;
+    virtual sf::Vector3<double> getNormal(sf::Vector3<double> POI) =0;
 };
 
 class Plane: public Shape{
@@ -68,22 +62,17 @@ public:
 class Disc: public Plane{
 public:
     double radSq;
-    
     Disc(sf::Vector3<double> PO_passed, sf::Vector3<double> PN_passed, double radiusSq, Material m)
     : Plane(PN_passed,PO_passed, m), radSq(radiusSq){type="Disc";}
-    
     double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         double denominator = RD * PN;
         if (denominator == 0){return inf;}
         double total = ((PO-RO)*PN) / denominator;
-        
         if(total < 0 || (RD*total + RO - PO)*(RD*total + RO - PO) > radSq){//gotta make sure the POI isn't too far from the PO
             return inf; //Negative d means no intersection
         }
-        
         return total;
     }
-    
 };
 
 
@@ -92,10 +81,8 @@ class Sphere: public Shape{
 public:
     sf::Vector3<double> SO;
     double SR;
-
     Sphere(sf::Vector3<double> SO_passed, double SR_passed, Material m)
     : Shape("Sphere", m), SO(SO_passed),SR(SR_passed){};
-    
     double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         //Checks intersection from a ray to a sphere. Ray is defined by RO as an endpoint, RD is unit vector for direction of ray. CO is center of circle CR is a scalar representing radius.
         //Equation  is d = -RD*(RO-SO) plus or minus sqrt(  (RD * (RO-SO)) **2 - mag(RO-SO)**2 + SR**2) )
@@ -105,9 +92,8 @@ public:
         if(disc < 0){return inf;}
         else if (disc == 0){return form;}
         double len = std::min(form + sqrt(disc), form - sqrt(disc));
-        return len<0?inf:len;
+        return len<0?inf:len; //there is no intersection if the 'intersection' would be behind the ray origin
     }
-    
     sf::Vector3<double> getNormal(sf::Vector3<double> POI){
         return normalize(POI - SO);
     }
@@ -127,7 +113,7 @@ public:
     :Plane(PO_passed, PN_passed, m),yvecMax(ymax),xvecMax(xmax),yvecMin(ymin),xvecMin(xmin),yposAxis(normalize(yposAxis))
     {
         type = "Rect";
-        if(abs(PN*yposAxis) > 0.00001){throw std::logic_error("A rect object was improperly initialized");}
+        if(abs(PN*yposAxis) > 0.00001){throw std::logic_error("A rect object was improperly initialized, decalred y axis was not perpendicular to the plane normal vector");}
         else{xposAxis = normalize(cross(PN, yposAxis));}
     }
     
@@ -192,3 +178,25 @@ public:
 
     }
 };
+
+
+class Union: public Shape{
+public:
+    Shape* shape1;
+    Shape* shape2;
+    
+    Union(Shape* one, Shape* two, Material m):
+    Shape("union",m),shape1(one),shape2(two)
+    {}
+    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        double firstSect = shape1->intersect(RO, RD);
+        double secondSect = shape2->intersect(RO, RD);
+        if(secondSect<inf and firstSect<inf){
+            return(std::max(firstSect,secondSect));
+        }
+        return inf;
+    }
+    
+
+    
+    };

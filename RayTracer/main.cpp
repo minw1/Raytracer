@@ -18,7 +18,8 @@
 #include <SFML/Graphics.hpp>
 #include "SceneTrace.hpp"
 
-
+#include <iostream>
+#include <stdio.h>
 // Here is a small helper for you! Have a look.
 #include "ResourcePath.hpp"
 
@@ -31,6 +32,7 @@ int main(int, char const**)
         ptr->copyToImage().saveToFile("/Users/williammin/Desktop/Animation/" + pad(framecount,3) + ".png");
         delete ptr;
         framecount++;
+        std::cout<<framecount<<" percent complete"<<std::endl;
     }
     return EXIT_SUCCESS;
 }
