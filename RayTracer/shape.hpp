@@ -23,7 +23,7 @@ public:
     Shape(std::string type_passed,Material m):
     material(m){}
     virtual double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD)=0;
-    virtual sf::Vector3<double> getNormal(sf::Vector3<double> POI) =0;
+    virtual sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD) =0;
 };
 
 class Plane: public Shape{
@@ -40,20 +40,16 @@ public:
         //      ------------
         //      RD . PN
         double denominator = RD * PN;
-        
         if (fabs(denominator) < 0.00001){
             return inf;
         }
-         
         double total = ((PO-RO)*PN) / denominator;
-
         if(total < 0){
             return inf; //Negative d means no intersection
         }
-        
         return total;
     }
-    sf::Vector3<double> getNormal(sf::Vector3<double> POI){
+    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
         return PN; //plane's normal vector is always the same vector which is perpendicular to the plane
     }
 };
@@ -94,7 +90,8 @@ public:
         double len = std::min(form + sqrt(disc), form - sqrt(disc));
         return len<0?inf:len; //there is no intersection if the 'intersection' would be behind the ray origin
     }
-    sf::Vector3<double> getNormal(sf::Vector3<double> POI){
+    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        sf::Vector3<double> POI = cameraPosition + RD*intersect(RO, RD);
         return normalize(POI - SO);
     }
 };
@@ -169,10 +166,11 @@ public:
         return closeVal;
     }
     
-    sf::Vector3<double> getNormal(sf::Vector3<double> POI){
+    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        sf::Vector3<double> POI = cameraPosition + RD*intersect(RO, RD);
         for(int i=0; i<walls.size();i++){
             if (pointInPlane(POI, walls[i].PO, walls[i].PN)){
-                return (walls[i].getNormal(POI));
+                return (walls[i].getNormal(RO,RD));
             }
         }
 
@@ -180,13 +178,13 @@ public:
 };
 
 
-class Union: public Shape{
+class Intersect: public Shape{
 public:
     Shape* shape1;
     Shape* shape2;
     
-    Union(Shape* one, Shape* two, Material m):
-    Shape("union",m),shape1(one),shape2(two)
+    Intersect(Shape* one, Shape* two, Material m):
+    Shape("Intersect",m),shape1(one),shape2(two)
     {}
     double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         double firstSect = shape1->intersect(RO, RD);
@@ -196,7 +194,38 @@ public:
         }
         return inf;
     }
-    
+    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        double firstSect = shape1->intersect(RO, RD);
+        double secondSect = shape2->intersect(RO, RD);
+        if(secondSect<inf and firstSect<inf){
+            if(firstSect>secondSect){return(shape1->getNormal(RO, RD));}
+            else{return(shape2->getNormal(RO, RD));}
+        }
+        }
+};
 
+class Union: public Shape{
+public:
+    Shape* shape1;
+    Shape* shape2;
     
-    };
+    Union(Shape* one, Shape* two, Material m):
+    Shape("Union",m),shape1(one),shape2(two)
+    {}
+    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        double firstSect = shape1->intersect(RO, RD);
+        double secondSect = shape2->intersect(RO, RD);
+        if(secondSect<inf or firstSect<inf){
+            return(std::min(firstSect,secondSect));
+        }
+        return inf;
+    }
+    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        double firstSect = shape1->intersect(RO, RD);
+        double secondSect = shape2->intersect(RO, RD);
+        if(secondSect<inf or firstSect<inf){
+            if(firstSect>secondSect){return(shape2->getNormal(RO, RD));}
+            else{return(shape1->getNormal(RO, RD));}
+        }
+    }
+};

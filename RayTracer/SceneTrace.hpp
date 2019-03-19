@@ -32,14 +32,15 @@ sf::Texture* image(float time){
                  sf::Vector3<double>(-sin(timescaled),0,cos(timescaled)),
                  
                  steel2);
+    Sphere boundingSphere(sf::Vector3<double>(30,0,1),1.4, blue);
     
-    
+    Intersect weird_spinny_cube(&redCube,&boundingSphere,steel2);
     
     
     scene.push_back(&redSphere);
     scene.push_back(&greenSphere);
     scene.push_back(&blueSphere);
-    scene.push_back(&redCube);
+    scene.push_back(&weird_spinny_cube);
     scene.push_back(&greyPlane);
     
     for(int aPIX = 0; aPIX < width; aPIX++){

@@ -32,7 +32,7 @@ sf::Color Raytrace(std::vector<Shape*>& scene, sf::Vector3<double> Origin, sf::V
     Shape * objectP = std::get<1>(info);
     sf::Vector3<double> POI = Origin + (Direction*distance);//Point of intersection
     sf::Vector3<double> normal;
-    normal = objectP->getNormal(POI);
+    normal = objectP->getNormal(Origin,Direction);
     Material material = objectP->material;
     sf::Vector3<double> toLight = normalize(lightPosition - POI);//normal vector to light
     sf::Vector3<double> viewVec = normalize(POI-Origin);//normal vector from camera to POI
