@@ -2,42 +2,48 @@
 #include "colorManip.hpp"
 #include <tuple>
 
-std::tuple<double,Shape*> closestIntersection(std::vector<Shape*>& scene, sf::Vector3<double> RO, sf::Vector3<double> RD, Shape * toExclude = nullptr){
-    double closest = inf;
-    Shape *closestShape = nullptr;
+
+rayIntersectData closestIntersection(std::vector<Shape*>& scene, sf::Vector3<double> RO, sf::Vector3<double> RD, Shape * toExclude = nullptr){
+    
+    
+    rayIntersectData closest = rayIntersectData();
+    closest.l = inf;
     
     for(int a = 0; a < scene.size(); a++){
         Shape * thisPtr = scene[a];
         if(toExclude == thisPtr){//some problems can occur without this statement, we don't want the tops of spheres blocking the bottom
             continue;
         }
-        double distance = inf;
-        distance = thisPtr->intersect(RO,RD);
         
-        if(distance < closest){
-            closest = distance;
-            closestShape = scene[a];
+        auto hit =thisPtr->intersect(RO,RD);
+        if(hit.size()>0){
+            if(hit[0].first < closest.l){
+                closest.l = hit[0].first;
+                closest.s = scene[a];
+                closest.N = hit[0].second;
+            }
         }
     }
-    
-    if (closest == inf){return std::make_tuple(inf,nullptr);}
-    else{return std::make_tuple(closest,closestShape);}
+    return closest;
 }
 
-sf::Color Raytrace(std::vector<Shape*>& scene, sf::Vector3<double> Origin, sf::Vector3<double> Direction, int depth = 0, Shape * lastShape = nullptr){
+sf::Color Raytrace(std::vector<Shape*> scene, sf::Vector3<double> Origin, sf::Vector3<double> Direction, int depth = 0, Shape * lastShape = nullptr){
     if(depth == max_depth){return sf::Color(128,128,128,255);}
-    std::tuple<double,Shape*> info = closestIntersection(scene, Origin, Direction, lastShape);
-    double distance = std::get<0>(info);
+    auto info = closestIntersection(scene, Origin, Direction, lastShape);
+    
+    
+    double distance = info.l;
     if(distance == inf){return backgroundColor;}
-    Shape * objectP = std::get<1>(info);
+    Shape * objectP = info.s;
+    
     sf::Vector3<double> POI = Origin + (Direction*distance);//Point of intersection
-    sf::Vector3<double> normal;
-    normal = objectP->getNormal(Origin,Direction);
+    sf::Vector3<double> normal = info.N;
     Material material = objectP->material;
     sf::Vector3<double> toLight = normalize(lightPosition - POI);//normal vector to light
     sf::Vector3<double> viewVec = normalize(POI-Origin);//normal vector from camera to POI
-    std::tuple<double,Shape*> lightIntersection = closestIntersection(scene, POI + normal*0.01, toLight,objectP);
-    if(std::get<0>(lightIntersection) < magnitude(lightPosition - POI + normal*0.01)){return sf::Color(0,0,0,255);}//if path to light is blocked returns black
+    
+    auto lightIntersection = closestIntersection(scene, POI + normal*0.01, toLight,objectP);
+    if(lightIntersection.l < magnitude(lightPosition - POI + normal*0.01)){return sf::Color(0,0,0,255);}//if path to light is blocked returns black
     sf::Color rayColor = ambientColor;
     //lambert shading
     rayColor = rayColor*material.diffuse_color;

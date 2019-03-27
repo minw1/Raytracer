@@ -16,8 +16,8 @@
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+//#include "SceneTrace.hpp"
 #include "SceneTrace.hpp"
-
 #include <iostream>
 #include <stdio.h>
 // Here is a small helper for you! Have a look.
@@ -26,6 +26,7 @@
 
 int main(int, char const**)
 {
+    
     int framecount = 0;
     for(float a = 0; a < 100;a++){
         auto ptr = image(a);
@@ -34,5 +35,25 @@ int main(int, char const**)
         framecount++;
         std::cout<<framecount<<" percent complete"<<std::endl;
     }
+     
+    
+    /*
+    sf::Vector3<double> fakeVector(0,0,0);
+    
+    intersectInfo a = intersectInfo();
+    intersectInfo b = intersectInfo();
+    
+    auto c = std::make_pair(0, fakeVector);
+    auto d =std::make_pair(100, fakeVector);
+    auto e = std::make_pair(70, fakeVector);
+    auto f =std::make_pair(155, fakeVector);
+    a.push_back(c);
+    a.push_back(d);
+    b.push_back(e);
+    b.push_back(f);
+    
+    auto l = IntersectEdges(a, b);
+    */
+    
     return EXIT_SUCCESS;
 }

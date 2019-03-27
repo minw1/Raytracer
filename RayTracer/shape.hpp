@@ -22,8 +22,7 @@ public:
     Material material;
     Shape(std::string type_passed,Material m):
     material(m){}
-    virtual double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD)=0;
-    virtual sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD) =0;
+    virtual intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD)=0;
 };
 
 class Plane: public Shape{
@@ -31,27 +30,31 @@ public:
     sf::Vector3<double> PO;
     sf::Vector3<double> PN;
     
+    
     Plane(sf::Vector3<double> PO_passed, sf::Vector3<double> PN_passed, Material m): Shape("Plane",m), PO(PO_passed),PN(PN_passed){};
     
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         //Checks intersection from a ray to plane. Ray is defined by RO is an arbitrary point on vector, RD is unit vector for direction of ray PO is point on plane PN is unit normal vector for plane.
         //Equation used is
         // d =  (PO-RO) . PN
         //      ------------
         //      RD . PN
+        intersectInfo toReturn = intersectInfo();
+        
         double denominator = RD * PN;
         if (fabs(denominator) < 0.00001){
-            return inf;
+            return toReturn;
         }
         double total = ((PO-RO)*PN) / denominator;
         if(total < 0){
-            return inf; //Negative d means no intersection
+            return toReturn; //Negative d means no intersection
         }
-        return total;
+        toReturn.push_back(std::make_pair(total, PN));
+        toReturn.push_back(std::make_pair(total + .001, -PN));
+        
+        return toReturn;
     }
-    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        return PN; //plane's normal vector is always the same vector which is perpendicular to the plane
-    }
+    
 };
 
 
@@ -60,14 +63,21 @@ public:
     double radSq;
     Disc(sf::Vector3<double> PO_passed, sf::Vector3<double> PN_passed, double radiusSq, Material m)
     : Plane(PN_passed,PO_passed, m), radSq(radiusSq){type="Disc";}
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        intersectInfo toReturn = intersectInfo();
+        
         double denominator = RD * PN;
-        if (denominator == 0){return inf;}
+        if (fabs(denominator) < 0.00001){
+            return toReturn;
+        }
         double total = ((PO-RO)*PN) / denominator;
         if(total < 0 || (RD*total + RO - PO)*(RD*total + RO - PO) > radSq){//gotta make sure the POI isn't too far from the PO
-            return inf; //Negative d means no intersection
+            return toReturn;
         }
-        return total;
+        toReturn.push_back(std::make_pair(total, PN));
+        toReturn.push_back(std::make_pair(total + .001, -PN));
+        
+        return toReturn;
     }
 };
 
@@ -79,20 +89,26 @@ public:
     double SR;
     Sphere(sf::Vector3<double> SO_passed, double SR_passed, Material m)
     : Shape("Sphere", m), SO(SO_passed),SR(SR_passed){};
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         //Checks intersection from a ray to a sphere. Ray is defined by RO as an endpoint, RD is unit vector for direction of ray. CO is center of circle CR is a scalar representing radius.
         //Equation  is d = -RD*(RO-SO) plus or minus sqrt(  (RD * (RO-SO)) **2 - mag(RO-SO)**2 + SR**2) )
+        intersectInfo toReturn = intersectInfo();
         sf::Vector3<double> away = RO-SO;
         double disc = pow(RD * away,2) - pow(magnitude(away),2) + pow(SR,2);
         double form = -(RD * (RO-SO));
-        if(disc < 0){return inf;}
-        else if (disc == 0){return form;}
-        double len = std::min(form + sqrt(disc), form - sqrt(disc));
-        return len<0?inf:len; //there is no intersection if the 'intersection' would be behind the ray origin
-    }
-    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        sf::Vector3<double> POI = cameraPosition + RD*intersect(RO, RD);
-        return normalize(POI - SO);
+        if(disc < 0){return toReturn;}
+        else if (disc == 0){
+            return toReturn;//it's safe to ignore, literal edge (tangent to spere) cases?
+        }
+        double close =std::min(form + sqrt(disc), form - sqrt(disc));
+        double far = std::max(form + sqrt(disc), form - sqrt(disc));
+        
+        if (close<0){return toReturn;} //there is no intersection if the 'intersection' would be behind the ray origin
+        
+        toReturn.push_back(std::make_pair(close, normalize((cameraPosition+RD*close)-SO)));
+        toReturn.push_back(std::make_pair(far, normalize((cameraPosition+RD*far)-SO)));
+        
+        return toReturn;
     }
 };
 
@@ -114,22 +130,29 @@ public:
         else{xposAxis = normalize(cross(PN, yposAxis));}
     }
     
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        //this much is the same as the plane intersect function
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        
+        //this part is same as plane intersect
+        intersectInfo toReturn = intersectInfo();
+        
         double denominator = RD * PN;
-        if (denominator == 0){return inf;}
-        double total = ((PO-RO)*PN) / denominator;
-        if(total < 0.0000001){
-            return inf;
+        if (fabs(denominator) < 0.00001){
+            return toReturn;
         }
+        double total = ((PO-RO)*PN) / denominator;
+        
         //but here, the coordinates of the intersection point are tested for being in bounds
         auto coor = total*RD + RO - PO;
         auto y = coor*yposAxis;
         auto x = coor*xposAxis;
         if (y>yvecMax || y < yvecMin || x>xvecMax || x<xvecMin){
-            return inf;
+            return toReturn;
         }
-        return total;
+        
+        toReturn.push_back(std::make_pair(total, PN));
+        toReturn.push_back(std::make_pair(total + .001, -PN));
+        
+        return toReturn;
     }
 };
 
@@ -153,28 +176,34 @@ public:
     walls.push_back(frontwall);
     }
     
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        Rect * closest = nullptr;
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        intersectInfo toReturn = intersectInfo();
+        
+        sf::Vector3<double> closeN;
         double closeVal = inf;
+        
+        sf::Vector3<double> farN;
+        double farVal = -inf;
+        
         for(int i = 0; i < walls.size();i++){
-            double val = walls[i].intersect(RO, RD);
-            if (val<closeVal){
-                closest = &walls[i];
-                closeVal = val;
+            auto inter = walls[i].intersect(RO, RD);
+            if(inter.size() > 0){
+                if (inter[0].first<closeVal){
+                    closeN = inter[0].second;
+                    closeVal = inter[0].first;
+                }
+                if (inter[0].first>farVal){
+                    farN = inter[0].second;
+                    farVal = inter[0].first;
+            }
             }
         }
-        return closeVal;
+        if(closeVal == inf || farVal == -inf){return toReturn;}
+        toReturn.push_back(std::make_pair(closeVal, closeN));
+        toReturn.push_back(std::make_pair(farVal, farN));
+        return toReturn;
     }
     
-    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        sf::Vector3<double> POI = cameraPosition + RD*intersect(RO, RD);
-        for(int i=0; i<walls.size();i++){
-            if (pointInPlane(POI, walls[i].PO, walls[i].PN)){
-                return (walls[i].getNormal(RO,RD));
-            }
-        }
-
-    }
 };
 
 
@@ -186,24 +215,14 @@ public:
     Intersect(Shape* one, Shape* two, Material m):
     Shape("Intersect",m),shape1(one),shape2(two)
     {}
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        double firstSect = shape1->intersect(RO, RD);
-        double secondSect = shape2->intersect(RO, RD);
-        if(secondSect<inf and firstSect<inf){
-            return(std::max(firstSect,secondSect));
-        }
-        return inf;
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        intersectInfo firstSect = shape1->intersect(RO, RD);
+        intersectInfo secondSect = shape2->intersect(RO, RD);
+        return IntersectEdges(firstSect, secondSect);
     }
-    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        double firstSect = shape1->intersect(RO, RD);
-        double secondSect = shape2->intersect(RO, RD);
-        if(secondSect<inf and firstSect<inf){
-            if(firstSect>secondSect){return(shape1->getNormal(RO, RD));}
-            else{return(shape2->getNormal(RO, RD));}
-        }
-        }
-};
 
+};
+/*
 class Union: public Shape{
 public:
     Shape* shape1;
@@ -228,4 +247,11 @@ public:
             else{return(shape1->getNormal(RO, RD));}
         }
     }
+};
+*/
+
+struct rayIntersectData{
+    Shape* s;
+    double l;
+    sf::Vector3<double> N;
 };

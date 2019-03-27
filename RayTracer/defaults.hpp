@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 sf::Color lightColor(255,255,255,255);
 const double EulerConstant = std::exp(1.0);
@@ -53,13 +54,51 @@ std::string pad(int a, int digits){
 }
 
 bool pointInPlane(sf::Vector3<double> point, sf::Vector3<double> Plane, sf::Vector3<double> normal){
-    return (fabs((point-Plane)*normal) < 0.00000001);//oh my god i spent so long trying to figure out why this was broken
-    //originally, i had forgotten to take the absolute value, so plane intersections from one direction wouldn't register.
+    return (fabs((point-Plane)*normal) < 0.00000001);
+}
+
+typedef std::pair<double, sf::Vector3<double>> edge;
+typedef std::vector<edge> intersectInfo;//list of edges going, in, out, in ,out, etc. Must be even sized.
+
+intersectInfo IntersectEdges(intersectInfo& A, intersectInfo& B){
+    intersectInfo toReturn;
+    int a = 0;
+    int b = 0;
+    int d = 0;
+    assert(A.size()%2 == 0 && B.size()%2 ==0);
+    while(a<A.size() || b< B.size()){
+        
+        bool aHasNext;//a is available with the closest edge
+        bool in; //current edge enters a shape
+        edge nextEdge;
+        
+        if(b>=B.size()){aHasNext = true;nextEdge=A[a];}
+        else if(a>=A.size()){aHasNext = false;nextEdge=B[b];}
+        else if(A[a].first<B[b].first){aHasNext = true;nextEdge=A[a];}
+        else{aHasNext = false;nextEdge=B[b];}
+        if(aHasNext){in = (a%2 == 0);}
+        else{in = (b%2 == 0);}
+    
+        
+        if(in){
+            assert(d!=2);
+            if(d==1){toReturn.push_back(nextEdge);}
+            d++;
+        }
+        else{
+            assert(d!=0);
+            if(d==2){toReturn.push_back(nextEdge);}
+            d-=1;
+        }
+        
+        if(aHasNext){a++;}
+        else{b++;}
+    }
+    return toReturn;
+    
 }
 
 
 
-std::vector<sf::Vector3<double>> getMatrixFromRotation(double xTilt, double yTilt, double zTilt){
-    std::vector<sf::Vector3<double>> toReturn;
-    return(toReturn);//this will be implemented later
-}
+
+
