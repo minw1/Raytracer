@@ -21,7 +21,7 @@ public:
     std::string type = "";
     Material material;
     Shape(std::string type_passed,Material m):
-    material(m){}
+    type(type_passed),material(m){}
     virtual intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD)=0;
 };
 
@@ -30,9 +30,7 @@ public:
     sf::Vector3<double> PO;
     sf::Vector3<double> PN;
     
-    
     Plane(sf::Vector3<double> PO_passed, sf::Vector3<double> PN_passed, Material m): Shape("Plane",m), PO(PO_passed),PN(PN_passed){};
-    
     intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         //Checks intersection from a ray to plane. Ray is defined by RO is an arbitrary point on vector, RD is unit vector for direction of ray PO is point on plane PN is unit normal vector for plane.
         //Equation used is
@@ -98,7 +96,9 @@ public:
         double form = -(RD * (RO-SO));
         if(disc < 0){return toReturn;}
         else if (disc == 0){
-            return toReturn;//it's safe to ignore, literal edge (tangent to spere) cases?
+            return toReturn;//we could get into a philosohpical debate about the color of a ray of light tangent to a sphere.
+            //but I would pose an equally philosophical question: If an infinitely small sliver of sphere disappears and there
+            //isn't anyone to not see it, does it return a color?
         }
         double close =std::min(form + sqrt(disc), form - sqrt(disc));
         double far = std::max(form + sqrt(disc), form - sqrt(disc));
@@ -190,12 +190,10 @@ public:
             if(inter.size() > 0){
                 if (inter[0].first<closeVal){
                     closeN = inter[0].second;
-                    closeVal = inter[0].first;
-                }
+                    closeVal = inter[0].first;}
                 if (inter[0].first>farVal){
                     farN = inter[0].second;
-                    farVal = inter[0].first;
-            }
+                    farVal = inter[0].first;}
             }
         }
         if(closeVal == inf || farVal == -inf){return toReturn;}
@@ -213,42 +211,42 @@ public:
     Shape* shape2;
     
     Intersect(Shape* one, Shape* two, Material m):
-    Shape("Intersect",m),shape1(one),shape2(two)
-    {}
+    Shape("Intersect",m),shape1(one),shape2(two){};
     intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         intersectInfo firstSect = shape1->intersect(RO, RD);
         intersectInfo secondSect = shape2->intersect(RO, RD);
-        return IntersectEdges(firstSect, secondSect);
-    }
-
+        return IntersectEdges(firstSect, secondSect);}
 };
-/*
+
+
 class Union: public Shape{
 public:
     Shape* shape1;
     Shape* shape2;
     
     Union(Shape* one, Shape* two, Material m):
-    Shape("Union",m),shape1(one),shape2(two)
-    {}
-    double intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        double firstSect = shape1->intersect(RO, RD);
-        double secondSect = shape2->intersect(RO, RD);
-        if(secondSect<inf or firstSect<inf){
-            return(std::min(firstSect,secondSect));
-        }
-        return inf;
-    }
-    sf::Vector3<double> getNormal(sf::Vector3<double> RO, sf::Vector3<double> RD){
-        double firstSect = shape1->intersect(RO, RD);
-        double secondSect = shape2->intersect(RO, RD);
-        if(secondSect<inf or firstSect<inf){
-            if(firstSect>secondSect){return(shape2->getNormal(RO, RD));}
-            else{return(shape1->getNormal(RO, RD));}
-        }
-    }
+    Shape("Union",m),shape1(one),shape2(two){};
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        intersectInfo firstSect = shape1->intersect(RO, RD);
+        intersectInfo secondSect = shape2->intersect(RO, RD);
+        return UnionEdges(firstSect, secondSect);}
 };
-*/
+
+class Difference: public Shape{
+public:
+    Shape* shape1;
+    Shape* shape2;
+    
+    Difference(Shape* one, Shape* two, Material m):
+    Shape("Difference",m),shape1(one),shape2(two){};
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        intersectInfo firstSect = shape1->intersect(RO, RD);
+        intersectInfo secondSect = shape2->intersect(RO, RD);
+        return DifferenceEdges(firstSect, secondSect);
+    }
+    
+};
+
 
 struct rayIntersectData{
     Shape* s;

@@ -5,9 +5,9 @@
 
 rayIntersectData closestIntersection(std::vector<Shape*>& scene, sf::Vector3<double> RO, sf::Vector3<double> RD, Shape * toExclude = nullptr){
     
-    
     rayIntersectData closest = rayIntersectData();
     closest.l = inf;
+    
     
     for(int a = 0; a < scene.size(); a++){
         Shape * thisPtr = scene[a];
@@ -17,13 +17,16 @@ rayIntersectData closestIntersection(std::vector<Shape*>& scene, sf::Vector3<dou
         
         auto hit =thisPtr->intersect(RO,RD);
         if(hit.size()>0){
-            if(hit[0].first < closest.l){
+            if(hit[0].first > 0 && hit[0].first < closest.l){
                 closest.l = hit[0].first;
                 closest.s = scene[a];
                 closest.N = hit[0].second;
             }
         }
     }
+    
+    
+    
     return closest;
 }
 
@@ -31,19 +34,17 @@ sf::Color Raytrace(std::vector<Shape*> scene, sf::Vector3<double> Origin, sf::Ve
     if(depth == max_depth){return sf::Color(128,128,128,255);}
     auto info = closestIntersection(scene, Origin, Direction, lastShape);
     
-    
-    double distance = info.l;
-    if(distance == inf){return backgroundColor;}
+    if(info.l == inf){return backgroundColor;}
     Shape * objectP = info.s;
     
-    sf::Vector3<double> POI = Origin + (Direction*distance);//Point of intersection
+    sf::Vector3<double> POI = Origin + (Direction*info.l);//Point of intersection
     sf::Vector3<double> normal = info.N;
     Material material = objectP->material;
-    sf::Vector3<double> toLight = normalize(lightPosition - POI);//normal vector to light
+    sf::Vector3<double> toLight = normalize(lightPosition -(POI+ (normal*0.01)));//normal vector to light
     sf::Vector3<double> viewVec = normalize(POI-Origin);//normal vector from camera to POI
     
-    auto lightIntersection = closestIntersection(scene, POI + normal*0.01, toLight,objectP);
-    if(lightIntersection.l < magnitude(lightPosition - POI + normal*0.01)){return sf::Color(0,0,0,255);}//if path to light is blocked returns black
+    auto lightIntersection = closestIntersection(scene, POI + (normal*0.01), toLight,objectP);
+    if(lightIntersection.l < magnitude(lightPosition - (POI + (normal*0.01)))){return sf::Color(0,0,0,255);}//if path to light is blocked returns black
     sf::Color rayColor = ambientColor;
     //lambert shading
     rayColor = rayColor*material.diffuse_color;

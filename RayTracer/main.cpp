@@ -27,6 +27,7 @@
 int main(int, char const**)
 {
     
+    
     int framecount = 0;
     for(float a = 0; a < 100;a++){
         auto ptr = image(a);

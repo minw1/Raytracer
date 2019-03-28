@@ -32,9 +32,9 @@ sf::Texture* image(float time){
                  sf::Vector3<double>(-sin(timescaled),0,cos(timescaled)),
                  
                  steel2);
-    Sphere boundingSphere(sf::Vector3<double>(30,0,1),1.4, blue);
+    Sphere boundingSphere(sf::Vector3<double>(30,0,1),1.8, blue);
     
-    Intersect weird_spinny_cube(&redCube,&boundingSphere,steel2);
+    Difference weird_spinny_cube(&redCube,&boundingSphere,steel2);
     
     
     scene.push_back(&redSphere);
