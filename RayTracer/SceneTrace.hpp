@@ -24,24 +24,40 @@ sf::Texture* image(float time){
     
     Plane greyPlane(sf::Vector3<double>(15,0,-1), sf::Vector3<double>(0,0,1), steel);
     
+    sf::Vector3<double> cubeforward(1,0,0);
+    sf::Vector3<double> cuberight(0,1,0);
+    sf::Vector3<double> cubeup(0,0,1);
+    
+    rotationMatrix cubeAngle = rmFromEuler(timescaled, timescaled, 0);
+    /*
+    std::cout<<vector_str(cubeAngle.row1)<<std::endl;
+    std::cout<<vector_str(cubeAngle.row2)<<std::endl;
+    std::cout<<vector_str(cubeAngle.row3)<<std::endl;
+    */
+    
     Cube redCube(sf::Vector3<double>(30,0,1),
-                 2.0 * sf::Vector3<double>(cos(timescaled),0,sin(timescaled)),
+                 2.0*(cubeAngle*cubeforward),
                  
-                 sf::Vector3<double>(0,1.0000,0),
+                 cubeAngle*cuberight,
                  
-                 sf::Vector3<double>(-sin(timescaled),0,cos(timescaled)),
+                 cubeAngle*cubeup,
                  
                  steel2);
-    Sphere boundingSphere(sf::Vector3<double>(30,0,1),1.8, blue);
+    
+    
+    
+    
+    Sphere boundingSphere(sf::Vector3<double>(30,0,1),1.4, blue);
     
     Difference weird_spinny_cube(&redCube,&boundingSphere,steel2);
     
     
-    scene.push_back(&redSphere);
-    scene.push_back(&greenSphere);
+    //scene.push_back(&redSphere);
+    //scene.push_back(&greenSphere);
     scene.push_back(&blueSphere);
-    scene.push_back(&weird_spinny_cube);
+
     scene.push_back(&greyPlane);
+    scene.push_back(&weird_spinny_cube);
     
     for(int aPIX = 0; aPIX < width; aPIX++){
         for(int bPIX = 0; bPIX < height;bPIX++){

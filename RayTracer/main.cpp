@@ -38,23 +38,6 @@ int main(int, char const**)
     }
      
     
-    /*
-    sf::Vector3<double> fakeVector(0,0,0);
-    
-    intersectInfo a = intersectInfo();
-    intersectInfo b = intersectInfo();
-    
-    auto c = std::make_pair(0, fakeVector);
-    auto d =std::make_pair(100, fakeVector);
-    auto e = std::make_pair(70, fakeVector);
-    auto f =std::make_pair(155, fakeVector);
-    a.push_back(c);
-    a.push_back(d);
-    b.push_back(e);
-    b.push_back(f);
-    
-    auto l = IntersectEdges(a, b);
-    */
     
     return EXIT_SUCCESS;
 }

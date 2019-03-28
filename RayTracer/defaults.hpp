@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include "constructiveSolids.hpp"
 
 sf::Color lightColor(255,255,255,255);
 const double EulerConstant = std::exp(1.0);
@@ -55,114 +56,33 @@ bool pointInPlane(sf::Vector3<double> point, sf::Vector3<double> Plane, sf::Vect
     return (fabs((point-Plane)*normal) < 0.00000001);
 }
 
-typedef std::pair<double, sf::Vector3<double>> edge;
-typedef std::vector<edge> intersectInfo;//list of edges going, in, out, in ,out, etc. Must be even sized to make sense.
+struct rotationMatrix{
+    sf::Vector3<double> row1;
+    sf::Vector3<double> row2;
+    sf::Vector3<double> row3;
+};
 
-intersectInfo IntersectEdges(intersectInfo& A, intersectInfo& B){
-    intersectInfo toReturn;
-    int a = 0;
-    int b = 0;
-    int d = 0;
-    assert(A.size()%2 == 0 && B.size()%2 ==0);
-    while(a<A.size() || b< B.size()){
-        bool aHasNext;//a is available with the closest edge
-        bool in; //current edge enters a shape
-        edge nextEdge;
-        if(b>=B.size()){aHasNext = true;nextEdge=A[a];}
-        else if(a>=A.size()){aHasNext = false;nextEdge=B[b];}
-        else if(A[a].first<B[b].first){aHasNext = true;nextEdge=A[a];}
-        else{aHasNext = false;nextEdge=B[b];}
-        if(aHasNext){in = (a%2 == 0);}
-        else{in = (b%2 == 0);}
-        
-        if(in){
-            assert(d!=2);
-            if(d==1){toReturn.push_back(nextEdge);}
-            d++;
-        }
-        else{
-            assert(d!=0);
-            if(d==2){toReturn.push_back(nextEdge);}
-            d-=1;
-        }
-        
-        if(aHasNext){a++;}
-        else{b++;}
-    }
+rotationMatrix rmFromEuler(double a, double b, double c){
+    rotationMatrix toReturn = rotationMatrix();
+    toReturn.row1.x = cos(b);
+    toReturn.row1.y = -cos(c)*sin(b);
+    toReturn.row1.z = sin(b)*sin(c);
+    
+    toReturn.row2.x = cos(a)*sin(b);
+    toReturn.row2.y = cos(a)*cos(b)*cos(c)-sin(a)*sin(c);
+    toReturn.row2.z = -cos(c)*sin(a)-cos(a)*cos(b)*sin(c);
+    
+    toReturn.row3.x = sin(a)*sin(b);
+    toReturn.row3.y = sin(a)*cos(b)*cos(c)+cos(a)*sin(c);
+    toReturn.row3.z = cos(a)*cos(c)-cos(b)*sin(a)*sin(c);
+    
     return toReturn;
 }
-intersectInfo UnionEdges(intersectInfo& A, intersectInfo& B){
-    intersectInfo toReturn;
-    int a = 0;
-    int b = 0;
-    int d = 0;
-    assert(A.size()%2 == 0 && B.size()%2 ==0);
-    while(a<A.size() || b< B.size()){
-        bool aHasNext;//a is available with the closest edge
-        bool in; //current edge enters a shape
-        edge nextEdge;
-        
-        if(b>=B.size()){aHasNext = true;nextEdge=A[a];}
-        else if(a>=A.size()){aHasNext = false;nextEdge=B[b];}
-        else if(A[a].first<B[b].first){aHasNext = true;nextEdge=A[a];}
-        else{aHasNext = false;nextEdge=B[b];}
-        if(aHasNext){in = (a%2 == 0);}
-        else{in = (b%2 == 0);}
-        
-        
-        if(in){
-            assert(d!=2);
-            if(d==0){toReturn.push_back(nextEdge);}
-            d++;
-        }
-        else{
-            assert(d!=0);
-            if(d==1){toReturn.push_back(nextEdge);}
-            d-=1;
-        }
-        
-        if(aHasNext){a++;}
-        else{b++;}
-    }
-    return toReturn;
-    
-}
 
-
-intersectInfo DifferenceEdges(intersectInfo& A, intersectInfo& B){
-    intersectInfo toReturn;
-    int a = 0;
-    int b = 0;
-    
-    bool inA = false;
-    bool inB = false;
-    assert(A.size()%2 == 0 && B.size()%2 ==0);
-    while(a<A.size() || b< B.size()){
-        bool aHasNext;//a is available with the closest edge
-        bool in; //current edge enters a shape
-        edge nextEdge;
-        
-        if(b>=B.size()){aHasNext = true;nextEdge=A[a];}
-        else if(a>=A.size()){aHasNext = false;nextEdge=B[b];}
-        else if(A[a].first<B[b].first){aHasNext = true;nextEdge=A[a];}
-        else{aHasNext = false;nextEdge=B[b];}
-        if(aHasNext){in = (a%2 == 0);}
-        else{in = (b%2 == 0);}
-        
-        
-        if(aHasNext){
-            if(!inB){toReturn.push_back(nextEdge);}
-            inA = !inA;
-            
-        }
-        else{
-            if(inA){nextEdge.second = -nextEdge.second;toReturn.push_back(nextEdge);}
-            inB = !inB;
-        }
-        if(aHasNext){a++;}
-        else{b++;}
-    }
-        
+sf::Vector3<double> operator*(rotationMatrix rm ,sf::Vector3<double> x){
+    sf::Vector3<double> toReturn;
+    toReturn.x = rm.row1 * x;
+    toReturn.y = rm.row2 * x;
+    toReturn.z = rm.row3 * x;
     return toReturn;
-    
 }

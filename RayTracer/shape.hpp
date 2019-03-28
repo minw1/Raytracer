@@ -55,7 +55,6 @@ public:
     
 };
 
-
 class Disc: public Plane{
 public:
     double radSq;
@@ -78,8 +77,6 @@ public:
         return toReturn;
     }
 };
-
-
 
 class Sphere: public Shape{
 public:
@@ -111,7 +108,6 @@ public:
         return toReturn;
     }
 };
-
 
 class Rect: public Plane{
 public:
@@ -159,12 +155,14 @@ public:
 class Cube: public Shape{
 public:
     std::vector<Rect> walls;
-    Cube (sf::Vector3<double> center, sf::Vector3<double> upward, sf::Vector3<double> rightward,sf::Vector3<double> forward, Material m)
+    Cube (sf::Vector3<double> center, sf::Vector3<double> forward, sf::Vector3<double> rightward,sf::Vector3<double> upward, Material m)
     : Shape("Cube",m){
-    Rect rightwall = Rect(center+rightward,normalize(rightward),normalize(upward), magnitude(upward),magnitude(rightward),-magnitude(upward),-magnitude(rightward),m);
-    Rect leftwall = Rect(center-rightward,normalize(-rightward),normalize(upward), magnitude(upward),magnitude(rightward),-magnitude(upward),-magnitude(rightward),m);
+    Rect rightwall = Rect(center+rightward,normalize(rightward),normalize(upward), magnitude(upward),magnitude(forward),-magnitude(upward),-magnitude(forward),m);
+    Rect leftwall = Rect(center-rightward,normalize(-rightward),normalize(upward), magnitude(upward),magnitude(forward),-magnitude(upward),-magnitude(forward),m);
+        
     Rect topwall = Rect(center+upward,normalize(upward),normalize(forward), magnitude(forward),magnitude(rightward),-magnitude(forward),-magnitude(rightward),m);
     Rect botwall = Rect(center-upward,normalize(-upward),normalize(forward), magnitude(forward),magnitude(rightward),-magnitude(forward),-magnitude(rightward),m);
+        
     Rect backwall = Rect(center+forward,normalize(forward),normalize(upward), magnitude(upward),magnitude(rightward),-magnitude(upward),-magnitude(rightward),m);
     Rect frontwall= Rect(center-forward,normalize(-forward),normalize(upward), magnitude(upward),magnitude(rightward),-magnitude(upward),-magnitude(rightward),m);
         
@@ -188,12 +186,14 @@ public:
         for(int i = 0; i < walls.size();i++){
             auto inter = walls[i].intersect(RO, RD);
             if(inter.size() > 0){
-                if (inter[0].first<closeVal){
-                    closeN = inter[0].second;
-                    closeVal = inter[0].first;}
-                if (inter[0].first>farVal){
-                    farN = inter[0].second;
-                    farVal = inter[0].first;}
+                if(inter[0].first>0){
+                    if (inter[0].first<closeVal){
+                        closeN = inter[0].second;
+                        closeVal = inter[0].first;}
+                    if (inter[0].first>farVal){
+                        farN = inter[0].second;
+                        farVal = inter[0].first;}
+                }
             }
         }
         if(closeVal == inf || farVal == -inf){return toReturn;}
@@ -203,7 +203,6 @@ public:
     }
     
 };
-
 
 class Intersect: public Shape{
 public:
@@ -217,7 +216,6 @@ public:
         intersectInfo secondSect = shape2->intersect(RO, RD);
         return IntersectEdges(firstSect, secondSect);}
 };
-
 
 class Union: public Shape{
 public:
@@ -245,11 +243,4 @@ public:
         return DifferenceEdges(firstSect, secondSect);
     }
     
-};
-
-
-struct rayIntersectData{
-    Shape* s;
-    double l;
-    sf::Vector3<double> N;
 };

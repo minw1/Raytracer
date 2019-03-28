@@ -19,6 +19,7 @@
 		F4C8BECC1FD3212800DD700F /* shape.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = shape.hpp; sourceTree = "<group>"; };
 		F4C8BECD1FD3248400DD700F /* tracer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tracer.hpp; sourceTree = "<group>"; };
 		F4C8BECE1FD324ED00DD700F /* colorManip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = colorManip.hpp; sourceTree = "<group>"; };
+		F4CE4761224D4B18000A4A6F /* constructiveSolids.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = constructiveSolids.hpp; sourceTree = "<group>"; };
 		F4E1437A1FD1177E00FD24B6 /* RayTracer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RayTracer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4E1437E1FD1177E00FD24B6 /* RayTracer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RayTracer-Info.plist"; sourceTree = "<group>"; };
 		F4E1437F1FD1177E00FD24B6 /* ResourcePath.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ResourcePath.mm; sourceTree = "<group>"; };
@@ -69,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				F4E143921FD117F200FD24B6 /* defaults.hpp */,
+				F4CE4761224D4B18000A4A6F /* constructiveSolids.hpp */,
 				F4C8BECC1FD3212800DD700F /* shape.hpp */,
 				F4C8BECD1FD3248400DD700F /* tracer.hpp */,
 				F4C8BECE1FD324ED00DD700F /* colorManip.hpp */,

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/tracer.hpp"
-            timestampString = "575424534.871312"
+            timestampString = "575494661.310833"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "45"
-            endingLineNumber = "45"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
             landmarkName = "Raytrace(std::vector&lt;Shape*&gt; scene, sf::Vector3&lt;double&gt; Origin, sf::Vector3&lt;double&gt; Direction, int depth = 0, Shape * lastShape = nullptr)"
             landmarkType = "9">
          </BreakpointContent>
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/shape.hpp"
-            timestampString = "575424534.872614"
+            timestampString = "575494942.228892"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "35"
@@ -74,11 +74,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RayTracer/shape.hpp"
-            timestampString = "575424534.872997"
+            timestampString = "575494942.2289619"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "256"
-            endingLineNumber = "256">
+            startingLineNumber = "246"
+            endingLineNumber = "246"
+            landmarkName = "Difference"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -87,13 +89,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "RayTracer/main.cpp"
-            timestampString = "575424534.873163"
+            filePath = "RayTracer/SceneTrace.hpp"
+            timestampString = "575494942.229015"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
-            landmarkName = "main(int, char const**)"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "image(float time)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

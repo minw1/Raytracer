@@ -1,7 +1,11 @@
 #include "shape.hpp"
 #include "colorManip.hpp"
 #include <tuple>
-
+struct rayIntersectData{
+    Shape* s;
+    double l;
+    sf::Vector3<double> N;
+};
 
 rayIntersectData closestIntersection(std::vector<Shape*>& scene, sf::Vector3<double> RO, sf::Vector3<double> RD, Shape * toExclude = nullptr){
     
