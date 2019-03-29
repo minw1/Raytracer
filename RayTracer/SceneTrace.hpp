@@ -22,7 +22,8 @@ sf::Texture* image(float time){
     
     Sphere blueSphere(sf::Vector3<double>(9,1,1.2), .4, blue);
     
-    Plane greyPlane(sf::Vector3<double>(15,0,-1), sf::Vector3<double>(0,0,1), steel);
+    Disc greyPlane(sf::Vector3<double>(15,0,-1), sf::Vector3<double>(0,0,1), 3, steel);
+    
     
     sf::Vector3<double> cubeforward(1,0,0);
     sf::Vector3<double> cuberight(0,1,0);
@@ -44,8 +45,7 @@ sf::Texture* image(float time){
                  
                  steel2);
     
-    
-    
+    Cylinder redCylinder(sf::Vector3<double>(30,0,0.5), sf::Vector3<double>(0,0,1), 2, 1, red);
     
     Sphere boundingSphere(sf::Vector3<double>(30,0,1),1.4, blue);
     
@@ -57,7 +57,8 @@ sf::Texture* image(float time){
     scene.push_back(&blueSphere);
 
     scene.push_back(&greyPlane);
-    scene.push_back(&weird_spinny_cube);
+    scene.push_back(&redCylinder);
+    //scene.push_back(&weird_spinny_cube);
     
     for(int aPIX = 0; aPIX < width; aPIX++){
         for(int bPIX = 0; bPIX < height;bPIX++){

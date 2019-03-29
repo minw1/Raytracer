@@ -58,8 +58,8 @@ public:
 class Disc: public Plane{
 public:
     double radSq;
-    Disc(sf::Vector3<double> PO_passed, sf::Vector3<double> PN_passed, double radiusSq, Material m)
-    : Plane(PN_passed,PO_passed, m), radSq(radiusSq){type="Disc";}
+    Disc(sf::Vector3<double> PO_passed, sf::Vector3<double> PN_passed, double radius, Material m)
+    : Plane(PO_passed,PN_passed, m), radSq(pow(radius,2.0)){type="Disc";}
     intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
         intersectInfo toReturn = intersectInfo();
         
@@ -68,9 +68,15 @@ public:
             return toReturn;
         }
         double total = ((PO-RO)*PN) / denominator;
-        if(total < 0 || (RD*total + RO - PO)*(RD*total + RO - PO) > radSq){//gotta make sure the POI isn't too far from the PO
+        
+        if(total <= 0){//gotta make sure the POI isn't too far from the PO
             return toReturn;
         }
+        
+        if((RD*total + RO - PO)*(RD*total + RO - PO) > radSq){
+            return toReturn;
+        }
+        
         toReturn.push_back(std::make_pair(total, PN));
         toReturn.push_back(std::make_pair(total + .001, -PN));
         
@@ -151,6 +157,109 @@ public:
         return toReturn;
     }
 };
+
+
+class Cylinder: public Shape{
+public:
+    Disc top;
+    Disc bottom;
+    sf::Vector3<double> center;
+    sf::Vector3<double> upwards;
+    double radiusSQ;
+    double height;
+    
+    std::pair<double,double> infIntersect(sf::Vector3<double>RO,sf::Vector3<double>RD){//intersection if the cylinder extened infinitely
+        sf::Vector3<double> As = (RD-(RD*upwards)*upwards);
+        sf::Vector3<double> dp = RO-center;
+        sf::Vector3<double> Cs = dp - (dp*upwards)*upwards;
+        double A = As*As;
+        double B = 2.0* ((RD-(RD*upwards)*upwards) * (dp-(dp*upwards)*upwards));
+        double C = Cs*Cs -radiusSQ;
+        double discr =pow(B,2.0)-4*A*C;
+        if(discr <= 0){return std::make_pair(inf, inf);}
+        double first = (-B + sqrt(discr))/2*A;
+        double second =(-B - sqrt(discr))/2*A;
+        return std::make_pair(first, second);
+        
+    }
+    
+    bool tooFarOut(sf::Vector3<double> POI){
+        return (fabs((POI-center) * upwards) > height);
+    }
+    
+    sf::Vector3<double> normal(sf::Vector3<double> POI){
+        sf::Vector3<double> crossOrigin = ((POI-center) * upwards)*upwards + center;
+        return(normalize(POI-crossOrigin));
+    }
+    
+    Cylinder(sf::Vector3<double> centerPass, sf::Vector3<double> upwardsPass, double radiusPass, double heightPass, Material m)
+    //height is a little misleading-- it's more like a height radius, the height from the core towards each cap
+    :Shape("Cylinder",m),center(centerPass),upwards(upwardsPass),radiusSQ(pow(radiusPass,2.0)),height(heightPass),
+    top(center + upwards*height,upwards,radiusPass,m),bottom(center - upwards*height,-upwards,radiusPass,m){};
+    
+
+    intersectInfo intersect(sf::Vector3<double> RO, sf::Vector3<double> RD){
+        intersectInfo toReturn = intersectInfo();
+        
+        intersectInfo topint = top.intersect(RO,RD);
+        intersectInfo bottomint = bottom.intersect(RO,RD);
+        
+        
+        
+        if(topint.size()!=0 && bottomint.size()!=0){
+            std::cout<<"ok"<<std::endl;
+            bool topSmaller = topint[0].first < bottomint[0].first;
+            if(topSmaller){
+                toReturn.push_back(topint[0]);
+                toReturn.push_back(bottomint[0]);
+            }
+            else{
+                toReturn.push_back(bottomint[0]);
+                toReturn.push_back(topint[0]);
+            }
+
+        }
+        else if(topint.size()!=0 || bottomint.size()!=0){
+            std::cout<<"ok2"<<std::endl;
+            edge realcap = topint.size()!=0? topint[0]: bottomint[0];//the cap that acutally has an intersection
+            std::pair<double,double> sideHits = infIntersect(RO, RD);
+            assert(sideHits.first!=inf);//if it intersects 1 cap, it must intersect the sides too
+            double theInOne;//which of the sidehits is in the side
+            if(!tooFarOut(RO+sideHits.first*RD)){theInOne = sideHits.first;}
+            else{theInOne = sideHits.second;}
+            bool capCloser = realcap.first<theInOne;
+            if(capCloser){
+                toReturn.push_back(realcap);
+                toReturn.push_back(std::make_pair(theInOne, normal(RO+RD*theInOne)));
+            }
+            else{
+                toReturn.push_back(std::make_pair(theInOne, normal(RO+RD*theInOne)));
+                toReturn.push_back(realcap);
+            }
+        }
+        else{
+            std::pair<double,double> sideHits = infIntersect(RO, RD);
+            if (sideHits.first == inf){return toReturn;}
+            if (tooFarOut(RO+RD*sideHits.first)){return toReturn;}
+            if (tooFarOut(RO+RD*sideHits.second)){return toReturn;}//in theory, only one of these can be tooFarOut
+            bool fSmaller = sideHits.first < sideHits.second;
+            if (fSmaller){
+                toReturn.push_back(std::make_pair(sideHits.first, normal(RO+RD*sideHits.first)));
+                toReturn.push_back(std::make_pair(sideHits.second, normal(RO+RD*sideHits.second)));
+            }
+            else{
+                toReturn.push_back(std::make_pair(sideHits.second, normal(RO+RD*sideHits.second)));
+                toReturn.push_back(std::make_pair(sideHits.first, normal(RO+RD*sideHits.first)));
+            }
+            
+        }
+        
+        return toReturn;
+        }
+    
+};
+
+
 
 class Cube: public Shape{
 public:
